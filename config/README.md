@@ -3,9 +3,11 @@
 Overwrite/append the default webgme configuration in `config.default.js`.
 The avaliable configurations are listed.
 
-When adding your own paths, make sure to either use `__dirname` or a relative path which will be resolved for your repository root.
-(N.B. below `__dirname` and `..` resolves to the webgme repository root.)
+When adding your own paths, make sure to either use `__dirname` or a relative path which will be resolved for your repository's root.
+(N.B. below `__dirname` and `..` resolves to the webgme repository-root.)
 
+
+```
 config = {
         addOn: {
             enable: false,
@@ -112,3 +114,4 @@ config = {
             visualizerDescriptors: [path.join(__dirname, '../src/client/js/Visualizers.json')]
         }
     };
+```
