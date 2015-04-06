@@ -60,7 +60,7 @@ define(['plugin/PluginConfig', 'plugin/PluginBase', 'plugin/NewPlugin/NewPlugin/
         // Using the logger.
         self.logger.info('This is a debug message.');
         self.logger.info('This is an info message.');
-        self.logger.warning('This is a warning message.');
+        self.logger.warn('This is a warning message.');
         self.logger.error('This is an error message.');
 
         // This will save the changes. If you don't want to save;

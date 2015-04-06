@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/webgme/webgme-boilerplate",
   "dependencies": {
-    "webgme": "https://github.com/webgme/webgme/tarball/master"
+    "webgme": "https://github.com/webgme/webgme/tarball/issue/300_dsml_plugin_tests"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.1"
   }
 }
