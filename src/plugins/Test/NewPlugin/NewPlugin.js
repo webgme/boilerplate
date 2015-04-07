@@ -63,10 +63,12 @@ define(['plugin/PluginConfig', 'plugin/PluginBase', 'plugin/NewPlugin/NewPlugin/
         self.logger.warn('This is a warning message.');
         self.logger.error('This is an error message.');
 
+        self.core.setAttribute(self.activeNode, 'name', 'newNameFromNewPlugin');
+
         // This will save the changes. If you don't want to save;
         // exclude self.save and call callback directly from this scope.
         self.result.setSuccess(true);
-        self.save('added obj', function (err) {
+        self.save('change name of activeNode', function (err) {
             callback(null, self.result);
         });
 

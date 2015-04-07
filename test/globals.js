@@ -22,6 +22,7 @@ var WebGME = require('webgme'),
         return JSON.parse(JSON.stringify(gmeConfig));
     },
     importProject = require('../node_modules/webgme/src/bin/import'),
+    expect = require('chai').expect,
     _runPlugin = require('../node_modules/webgme/src/server/runplugin');
 
 WebGME.addToRequireJsPaths(gmeConfig);
@@ -55,9 +56,12 @@ function runPlugin(_gmeConfig, managerConfig, pluginConfig, options, callback) {
         Storage = WebGME.serverUserStorage;
     }
 
+    managerConfig.branchName = managerConfig.branchName || 'master';
 
     function callPluginMain(storage) {
-        _runPlugin.main(storage, _gmeConfig, managerConfig, pluginConfig, callback);
+        _runPlugin.main(storage, _gmeConfig, managerConfig, pluginConfig, function (err, result) {
+            callback(err, result, storage);
+        });
     }
 
     if (options.importProject) {
@@ -84,6 +88,7 @@ function runPlugin(_gmeConfig, managerConfig, pluginConfig, options, callback) {
 module.exports = {
     WebGME: WebGME,
     getGmeConfig: getGmeConfig,
+    expect: expect,
 
     runPlugin: runPlugin
 };
