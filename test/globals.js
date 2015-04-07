@@ -23,6 +23,23 @@ var WebGME = require('webgme'),
     },
     importProject = require('../node_modules/webgme/src/bin/import'),
     expect = require('chai').expect,
+    Logger = WebGME.Logger,
+    logger = Logger.create('gme:test', {
+        //patterns: ['gme:test:*cache'],
+        transports: [{
+            transportType: 'Console',
+            options: {
+                level: 'error',
+                colorize: true,
+                timestamp: true,
+                prettyPrint: true,
+                handleExceptions: true, // ignored by default when you create the logger, see the logger.create function
+                exitOnError: false,
+                depth: 2,
+                debugStdout: true
+            }
+        }]
+    }, false),
     _runPlugin = require('../node_modules/webgme/src/server/runplugin');
 
 WebGME.addToRequireJsPaths(gmeConfig);
@@ -89,6 +106,8 @@ module.exports = {
     WebGME: WebGME,
     getGmeConfig: getGmeConfig,
     expect: expect,
+    logger: logger,
+    Logger: Logger,
 
     runPlugin: runPlugin
 };
