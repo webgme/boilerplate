@@ -76,7 +76,7 @@ describe('NewPlugin', function () {
             contextParams.projectName = projectName;
             contextParams.branchName = branchName;
             contextParams.nodePaths = [nodePath];
-            openContext(storage, gmeConfig, contextParams, function (err, context) {
+            openContext(storage, gmeConfig, testFixture.logger, contextParams, function (err, context) {
                 var nodeName;
                 expect(err).to.equal(null);
 
@@ -113,7 +113,7 @@ describe('NewPlugin', function () {
             contextParams.projectName = projectName;
             contextParams.branchName = branchName;
             contextParams.nodePaths = [nodePath];
-            openContext(storage, gmeConfig, contextParams, function (err, context) {
+            openContext(storage, gmeConfig, testFixture.logger, contextParams, function (err, context) {
                 var nodeName;
                 expect(err).to.equal(null);
 
