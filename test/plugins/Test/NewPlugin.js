@@ -3,126 +3,80 @@
  * @author pmeijer / https://github.com/pmeijer
  */
 
-var testFixture = require('../../globals');
+var testFixture = require('../../../node_modules/webgme/test/_globals'),
+    getGmeConfig = require('../../getconfig');
 
 describe('NewPlugin', function () {
-    var gmeConfig = testFixture.getGmeConfig(),
+    var gmeConfig = getGmeConfig(),
         runPlugin = testFixture.runPlugin,
-        openContext = testFixture.WebGME.openContext,
         expect = testFixture.expect,
+        logger = testFixture.logger.fork('NewPlugin'),
+        PluginCliManager = require('../../../node_modules/webgme/src/plugin/climanager'),
+        Q = testFixture.Q,
+        projectName = 'NewPluginProject',
+        branchName = 'master',
+        storage,
+        project,
+        gmeAuth,
+        commitHash,
         pluginName = 'NewPlugin';
 
-    it('should run using local storage with no pluginConfig', function (done) {
-        var managerConfig = {
-                pluginName: pluginName,
-                projectName: 'testProject',
-                branchName: 'master',
+    before(function (done) {
+        testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName)
+            .then(function (gmeAuth_) {
+                gmeAuth = gmeAuth_;
+                // This uses in memory storage. Use testFixture.getMongoStorage to persist to database.
+                storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
+                return storage.openDatabase();
+            })
+            .then(function () {
+                var importParam = {
+                    projectSeed: './test/assets/sm_basic.json',
+                    projectName: projectName,
+                    branchName: branchName,
+                    logger: logger,
+                    gmeConfig: gmeConfig
+                };
+
+                return testFixture.importProject(storage, importParam);
+            })
+            .then(function (importResult) {
+                project = importResult.project;
+                commitHash = importResult.commitHash;
+                return project.createBranch('test1', commitHash);
+            })
+            .nodeify(done);
+    });
+
+    after(function (done) {
+        storage.closeDatabase()
+            .then(function () {
+                return gmeAuth.unload();
+            })
+            .nodeify(done);
+    });
+
+    it('should run with no pluginConfig', function (done) {
+        var manager = new PluginCliManager(project, logger, gmeConfig),
+            pluginConfig = {
+            },
+            context = {
+                project: project.projectId,
+                commitHash: commitHash,
+                branchName: 'test1',
                 activeNode: '/960660211',
-            },
-            pluginConfig = {},
-            options = {
-                localStorage: true,
-                importProject: './test/assets/sm_basic.json'
             };
-        runPlugin(gmeConfig, managerConfig, pluginConfig, options, function (err, result/*, storage*/) {
+
+        manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
             expect(err).to.equal(null);
+            expect(typeof pluginResult).to.equal('object');
+            expect(pluginResult.success).to.equal(true);
 
-            expect(result.success).to.equal(true);
-            done();
-        });
-    });
-
-    it('should run using serveruserstorage with no pluginConfig', function (done) {
-        var managerConfig = {
-                pluginName: pluginName,
-                projectName: 'testProject',
-                branchName: 'master',
-                activeNode: '/960660211',
-            },
-            pluginConfig = {},
-            options = {
-                localStorage: false, // This requires that the database is connected
-                overwrite: true,
-                importProject: './test/assets/sm_basic.json'
-            };
-        runPlugin(gmeConfig, managerConfig, pluginConfig, options, function (err, result/*, storage*/) {
-            expect(err).to.equal(null);
-
-            expect(result.success).to.equal(true);
-            done();
-        });
-    });
-
-    it('should run using local storage and change name', function (done) {
-        var projectName = 'testProject',
-            nodePath = '/960660211',
-            branchName = 'master',
-            managerConfig = {
-                pluginName: pluginName,
-                projectName: projectName,
-                branchName: branchName,
-                activeNode: nodePath,
-            },
-            pluginConfig = {},
-            options = {
-                localStorage: true,
-                importProject: './test/assets/sm_basic.json'
-            };
-        runPlugin(gmeConfig, managerConfig, pluginConfig, options, function (err, result, storage) {
-            var contextParams = {};
-            expect(err).to.equal(null);
-            expect(result.success).to.equal(true);
-
-            contextParams.projectName = projectName;
-            contextParams.branchName = branchName;
-            contextParams.nodePaths = [nodePath];
-            openContext(storage, gmeConfig, testFixture.logger, contextParams, function (err, context) {
-                var nodeName;
-                expect(err).to.equal(null);
-
-                expect(context.nodes).to.have.keys(nodePath);
-                nodeName = context.core.getAttribute(context.nodes[nodePath], 'name');
-
-                expect(nodeName).to.equal('newNameFromNewPlugin');
-                done();
-            });
-        });
-    });
-
-    it('should run using serveruserstorage and change name', function (done) {
-        var projectName = 'testProject',
-            nodePath = '/960660211',
-            branchName = 'master',
-            managerConfig = {
-                pluginName: pluginName,
-                projectName: projectName,
-                branchName: branchName,
-                activeNode: nodePath,
-            },
-            pluginConfig = {},
-            options = {
-                localStorage: false,
-                overwrite: true,
-                importProject: './test/assets/sm_basic.json'
-            };
-        runPlugin(gmeConfig, managerConfig, pluginConfig, options, function (err, result, storage) {
-            var contextParams = {};
-            expect(err).to.equal(null);
-            expect(result.success).to.equal(true);
-
-            contextParams.projectName = projectName;
-            contextParams.branchName = branchName;
-            contextParams.nodePaths = [nodePath];
-            openContext(storage, gmeConfig, testFixture.logger, contextParams, function (err, context) {
-                var nodeName;
-                expect(err).to.equal(null);
-
-                expect(context.nodes).to.have.keys(nodePath);
-                nodeName = context.core.getAttribute(context.nodes[nodePath], 'name');
-
-                expect(nodeName).to.equal('newNameFromNewPlugin');
-                done();
-            });
+            project.getBranchHash('test1')
+                .then(function (branchHash) {
+                    expect(branchHash).to.not.equal(commitHash); // It should have updated the branch
+                })
+                .nodeify(done);
         });
     });
 });
