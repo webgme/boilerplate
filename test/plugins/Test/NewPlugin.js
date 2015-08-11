@@ -57,11 +57,11 @@ describe('NewPlugin', function () {
     });
 
     it('should run with no pluginConfig', function (done) {
-        var manager = new PluginCliManager(project, logger, gmeConfig),
+        var manager = new PluginCliManager(null, logger, gmeConfig),
             pluginConfig = {
             },
             context = {
-                project: project.projectId,
+                project: project,
                 commitHash: commitHash,
                 branchName: 'test1',
                 activeNode: '/960660211',
