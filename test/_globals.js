@@ -4,12 +4,12 @@
  * @author pmeijer / https://github.com/pmeijer
  */
 
-global.TESTING = true;
+var testFixture = require('../node_modules/webgme/test/_globals');
 
 // This flag will make sure the config.test.js is being used
-process.env.NODE_ENV = 'test';
+// process.env.NODE_ENV = 'test'; // This is set by the require above, overwrite it here.
 
-var WebGME = require('webgme'),
+var WebGME = testFixture.WebGME,
     gmeConfig = require('../config'),
     getGmeConfig = function () {
         'use strict';
@@ -23,4 +23,6 @@ var WebGME = require('webgme'),
 
 WebGME.addToRequireJsPaths(gmeConfig);
 
-module.exports = getGmeConfig;
+testFixture.getGmeConfig = getGmeConfig;
+
+module.exports = testFixture;
