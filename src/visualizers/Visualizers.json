@@ -4,8 +4,8 @@
         "panel": "js/Panels/ModelEditor/ModelEditorPanel",
         "DEBUG_ONLY": false},
 
-    {"id": "MinWorking",
-        "title": "MinimumWorkingViz",
+    {"id": "MinimumWorkingVisualizer",
+        "title": "MinimumWorkingVisualizer",
         "panel": "panels/MinimumWorkingExample/MinimumWorkingPanel",
         "DEBUG_ONLY": false},
 

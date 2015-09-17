@@ -1,31 +1,7 @@
 /**
- * @author rkereskenyi / https://github.com/rkereskenyi
+ * This file is for any scss that you may want for this visualizer.
  */
-
-$node-stroke-color: steelblue;
-$node-fill-color: #FFF;
-$link-stroke-color: #CCC;
 
 .minimum-working-viz {
   outline: none;
-
-  .node {
-    cursor: pointer;
-  }
-
-  .node circle {
-    fill: $node-fill-color;
-    stroke: $node-stroke-color;
-    stroke-width: 1.5px;
-  }
-
-  .node text {
-    font: 10px sans-serif;
-  }
-
-  .link {
-    fill: none;
-    stroke: $link-stroke-color;
-    stroke-width: 1.5px;
-  }
 }

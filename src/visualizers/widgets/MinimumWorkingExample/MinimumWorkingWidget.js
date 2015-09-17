@@ -14,15 +14,15 @@ define([
     var MinimumWorkingWidget,
         WIDGET_CLASS = 'minimum-working-viz';
 
-    MinimumWorkingWidget = function (container) {
-        this._logger = Logger.create('gme:Widgets:MinimumWorking:MinimumWorkingWidget', WebGMEGlobal.gmeConfig.client.log);
+    MinimumWorkingWidget = function (logger, container) {
+        this._logger = logger.fork('Widget');
 
         this._el = container;
 
         this.nodes = {};
         this._initialize();
 
-        this._logger.debug('MinimumWorkingWidget ctor finished');
+        this._logger.debug('ctor finished');
     };
 
     MinimumWorkingWidget.prototype._initialize = function () {

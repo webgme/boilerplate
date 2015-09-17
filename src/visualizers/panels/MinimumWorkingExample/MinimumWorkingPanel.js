@@ -43,13 +43,14 @@ define(['js/PanelBase/PanelBaseWithHeader',
         //set Widget title
         this.setTitle('');
 
-        this.widget = new MinimumWorkingWidget(this.$el);
+        this.widget = new MinimumWorkingWidget(this.logger, this.$el);
 
         this.widget.setTitle = function (title) {
             self.setTitle(title);
         };
 
         this.control = new MinimumWorkingControl({
+            logger: this.logger,
             client: this._client,
             widget: this.widget
         });

@@ -19,7 +19,7 @@ define(['js/logger',
 
     MinimumWorkingControl = function (options) {
 
-        this._logger = Logger.create('gme:Panels:MinimumWorking:Control', WebGMEGlobal.gmeConfig.client.log);
+        this._logger = options.logger.fork('Control');
 
         this._client = options.client;
 
@@ -31,7 +31,7 @@ define(['js/logger',
 
         this._initWidgetEventHandlers();
 
-        this._logger.debug('Created');
+        this._logger.debug('ctor finished');
     };
 
     MinimumWorkingControl.prototype._initWidgetEventHandlers = function () {
@@ -49,42 +49,40 @@ define(['js/logger',
         var desc = this._getObjectDescriptor(nodeId),
             self = this;
 
-        this._logger.debug('activeObject nodeId \'' + nodeId + '\'');
+        self._logger.debug('activeObject nodeId \'' + nodeId + '\'');
 
         // Remove current territory patterns
-        if (this._currentNodeId) {
-            this._client.removeUI(this._territoryId);
+        if (self._currentNodeId) {
+            self._client.removeUI(self._territoryId);
         }
 
-        this._currentNodeId = nodeId;
-        this._currentNodeParentId = undefined;
+        self._currentNodeId = nodeId;
+        self._currentNodeParentId = undefined;
 
-        if (this._currentNodeId || this._currentNodeId === CONSTANTS.PROJECT_ROOT_ID) {
+        if (self._currentNodeId || self._currentNodeId === CONSTANTS.PROJECT_ROOT_ID) {
             // Put new node's info into territory rules
-            this._selfPatterns = {};
-            this._selfPatterns[nodeId] = {children: 0};  // Territory "rule"
+            self._selfPatterns = {};
+            self._selfPatterns[nodeId] = {children: 0};  // Territory "rule"
 
-            this._widget.setTitle(desc.name.toUpperCase());
+            self._widget.setTitle(desc.name.toUpperCase());
 
             if (desc.parentId || desc.parentId === CONSTANTS.PROJECT_ROOT_ID) {
-                this.$btnModelHierarchyUp.show();
+                self.$btnModelHierarchyUp.show();
             } else {
-                this.$btnModelHierarchyUp.hide();
+                self.$btnModelHierarchyUp.hide();
             }
 
-            this._currentNodeParentId = desc.parentId;
+            self._currentNodeParentId = desc.parentId;
 
-            this._territoryId = this._client.addUI(this, function (events) {
+            self._territoryId = self._client.addUI(self, function (events) {
                 self._eventCallback(events);
             });
 
             // Update the territory
-            this._client.updateTerritory(this._territoryId, this._selfPatterns);
+            self._client.updateTerritory(self._territoryId, self._selfPatterns);
 
-            setTimeout(function () {
-                self._selfPatterns[nodeId] = {children: 1};
-                self._client.updateTerritory(self._territoryId, self._selfPatterns);
-            }, 1000);
+            self._selfPatterns[nodeId] = {children: 1};
+            self._client.updateTerritory(self._territoryId, self._selfPatterns);
         }
     };
 
@@ -118,21 +116,21 @@ define(['js/logger',
     /* * * * * * * * Node Event Handling * * * * * * * */
     MinimumWorkingControl.prototype._eventCallback = function (events) {
         var i = events ? events.length : 0,
-            e;
+            event;
 
         this._logger.debug('_eventCallback \'' + i + '\' items');
 
         while (i--) {
-            e = events[i];
-            switch (e.etype) {
+            event = events[i];
+            switch (event.etype) {
                 case CONSTANTS.TERRITORY_EVENT_LOAD:
-                    this._onLoad(e.eid);
+                    this._onLoad(event.eid);
                     break;
                 case CONSTANTS.TERRITORY_EVENT_UPDATE:
-                    this._onUpdate(e.eid);
+                    this._onUpdate(event.eid);
                     break;
                 case CONSTANTS.TERRITORY_EVENT_UNLOAD:
-                    this._onUnload(e.eid);
+                    this._onUnload(event.eid);
                     break;
                 default:
                     break;
@@ -163,6 +161,7 @@ define(['js/logger',
     /* * * * * * * * Visualizer life cycle callbacks * * * * * * * */
     MinimumWorkingControl.prototype.destroy = function () {
         this._detachClientEventListeners();
+        this._removeToolbarItems();
     };
 
     MinimumWorkingControl.prototype._attachClientEventListeners = function () {
@@ -215,8 +214,8 @@ define(['js/logger',
     };
 
     MinimumWorkingControl.prototype._initializeToolbar = function () {
-        var toolBar = WebGMEGlobal.Toolbar,
-            self = this;
+        var self = this,
+            toolBar = WebGMEGlobal.Toolbar;
 
         this._toolbarItems = [];
 
@@ -239,9 +238,10 @@ define(['js/logger',
             title: 'toggle checkbox',
             icon: 'gme icon-gme_diagonal-arrow',
             checkChangedFn: function (data, checked) {
-                console.log('Checkbox has been clicked!');
+                self._logger.log('Checkbox has been clicked!');
             }
         });
+        this._toolbarItems.push(this.$cbShowConnection);
 
         this._toolbarInitialized = true;
     };
